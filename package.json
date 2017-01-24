@@ -1,0 +1,36 @@
+{
+    "name": "auto-packer",
+    "version": "0.1.8",
+    "description": "auto pack js modules",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "auto",
+        "packer",
+        "modules"
+    ],
+    "author": {
+        "name": "mictydeng",
+        "email": "mictydeng@qq.com"
+    },
+    "license": "ISC",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/micty/autopacker.git"
+    },
+    "dependencies": {
+       "colors": "",
+        "defineJS": "",
+        "html-minifier": "",
+        "iconv-lite": "",
+        "less": "",
+        "minimatch": "",
+        "uglify-js": "",
+        "linearpath": ""
+    },
+    "devDependencies": {
+        
+    }
+}
