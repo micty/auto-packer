@@ -28,7 +28,6 @@ define('Module', function (require, module, exports) {
 
         var meta = {
             'id': '',
-            'content': '',
             'dep$count': {},
             'file': config.file,
         };
@@ -44,31 +43,30 @@ define('Module', function (require, module, exports) {
             var meta = mapper.get(this);
             var file = meta.file;
 
-            //if (file.endsWith('defaults/excore/Url.js')) {
-            //}
-            //console.log(file.green);
-
-
             var content = File.read(file);
-
-            //if (file.endsWith('defaults/excore/Url.js')) {
-            //    console.log(content);
-            //}
-
             var id = meta.id = ID.get(content);
-
-            //if (file.endsWith('defaults/excore/Url.js')) {
-            //    console.log(id.red);
-            //}
 
             if (!id) {
                 return;
             }
 
+            if (file.endsWith('KISP.js')) {
+                console.log(file.red);
+            }
 
             var dep$count = meta.dep$count;
+            var news = Deps.news(content);          //搜索动态绑定的依赖。
+            var binds = Deps.binds(content);        //搜索动态绑定的依赖。
             var publics = Deps.publics(content);    //搜索公共模块依赖。
             var privates = Deps.privates(content);  //搜索子模块依赖。
+
+            news.forEach(function (dep) {
+                dep$count[dep] = (dep$count[dep] || 0) + 1;
+            });
+
+            binds.forEach(function (dep) {
+                dep$count[dep] = (dep$count[dep] || 0) + 1;
+            });
 
             publics.forEach(function (dep) {
                 dep$count[dep] = (dep$count[dep] || 0) + 1;

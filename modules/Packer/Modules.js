@@ -25,13 +25,20 @@ define('Packer/Modules', function (require, module, exports) {
 
                 var id = data.id;
                 var old = id$mod[id];
-
-                if (old) {
-                    console.log('´æÔÚÖØ¸´µÄÄ£¿é:', id, 'ÎÄ¼ş:', [old.file, mod.file]);
-                    throw new Error();
+                if (!old) {
+                    id$mod[id] = data;
+                    return;
                 }
 
-                id$mod[id] = data;
+                //å·²å­˜åœ¨ï¼Œå‡ºé”™ã€‚
+                console.log('å­˜åœ¨é‡å¤çš„æ¨¡å—:'.bgRed, id.cyan);
+                console.log('æ–‡ä»¶:'.bgYellow);
+
+                console.log([old.file, data.file].map(function (file) {
+                    return '  ' + file.yellow;
+                }).join('\r\n'));
+
+                throw new Error();
             });
 
             return id$mod;

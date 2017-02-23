@@ -39,7 +39,8 @@ define('Packer', function (require, module, exports) {
         };
 
         map.set(this, meta);
-        this.options = JSON.parse(options);  //¶ÔÍâ±©Â¶Ò»¸öÖ»¶ÔµÄÊôĞÔ¡£
+        //this.options = JSON.parse(options);  //å¯¹å¤–æš´éœ²ä¸€ä¸ªåªå¯¹çš„å±æ€§ã€‚
+        this.options = meta.options;  //æ–¹ä¾¿å¤–ç•Œå¯ä»¥åŠ¨æ€ä¿®æ”¹
     
     }
 
@@ -49,7 +50,7 @@ define('Packer', function (require, module, exports) {
 
     Packer.prototype = {
         constructor: Packer,
-        options: {},            //¶ÔÍâ±©Â¶Ò»¸öÖ»¶ÔµÄÊôĞÔ¡£
+        options: {},            //å¯¹å¤–æš´éœ²ä¸€ä¸ªåªå¯¹çš„å±æ€§ã€‚
 
         on: function () {
             var meta = map.get(this);
@@ -72,6 +73,10 @@ define('Packer', function (require, module, exports) {
             });
         },
 
+
+        /**
+        * æŠŠ html æ–‡ä»¶è½¬æˆ js æ¨¡å—ã€‚
+        */
         html2js: function () {
             var meta = map.get(this);
             var emitter = meta.emitter;
@@ -85,10 +90,10 @@ define('Packer', function (require, module, exports) {
             files.forEach(function (file) {
                 var content = File.read(file);
 
-                //´¥·¢ÊÂ¼ş²¢³¢ÊÔÓÃÊÂ¼şµÄÓĞĞ§·µ»ØÖµ×÷ÎªĞÂµÄÄÚÈİ¡£
+                //è§¦å‘äº‹ä»¶å¹¶å°è¯•ç”¨äº‹ä»¶çš„æœ‰æ•ˆè¿”å›å€¼ä½œä¸ºæ–°çš„å†…å®¹ã€‚
                 var values = emitter.fire('html2js', [file, content]);
 
-                // ·Ç null »ò undefined£¬¼´Ö»ÒªÊÂ¼şÖĞ²»·µ»Ø null »ò undefined ¶¼ÊÇºÏ·¨µÄÖµ¡£
+                // é null æˆ– undefinedï¼Œå³åªè¦äº‹ä»¶ä¸­ä¸è¿”å› null æˆ– undefined éƒ½æ˜¯åˆæ³•çš„å€¼ã€‚
                 var item = values.reverse().find(function (item) {
                     return item != null;
                 });
@@ -107,6 +112,7 @@ define('Packer', function (require, module, exports) {
 
         define: function () {
             var meta = map.get(this);
+            var emitter = meta.emitter;
             var options = meta.options.define;
 
             var files = Files.get(options.dir, options.files);
@@ -115,11 +121,19 @@ define('Packer', function (require, module, exports) {
             var id$mod = Modules.get(files);
             //File.writeJSON('id$mod.json', id$mod);
 
-            var id$file = Refers.get(options.modules, id$mod);
-            meta.id$file = id$file;
+            var refers = Refers.get(options.modules, id$mod);
+            meta.id$file = refers.id$file;
+            meta.dep$ids = refers.dep$ids;
+
 
             //File.writeJSON('id$file.json', id$file);
 
+            emitter.fire('define', [{
+                'files': files,
+                'id$mod': id$mod,
+                'id$file': refers.id$file,
+                'dep$ids': refers.dep$ids,
+            }]);
             
         },
 
@@ -153,10 +167,10 @@ define('Packer', function (require, module, exports) {
                 return File.read(file);
             }).join('');
 
-            //´¥·¢ÊÂ¼ş²¢³¢ÊÔÓÃÊÂ¼şµÄÓĞĞ§·µ»ØÖµ×÷ÎªĞÂµÄÄÚÈİ¡£
+            //è§¦å‘äº‹ä»¶å¹¶å°è¯•ç”¨äº‹ä»¶çš„æœ‰æ•ˆè¿”å›å€¼ä½œä¸ºæ–°çš„å†…å®¹ã€‚
             var values = emitter.fire('concat', [files, content]);
 
-            // ·Ç null »ò undefined£¬¼´Ö»ÒªÊÂ¼şÖĞ²»·µ»Ø null »ò undefined ¶¼ÊÇºÏ·¨µÄÖµ¡£
+            // é null æˆ– undefinedï¼Œå³åªè¦äº‹ä»¶ä¸­ä¸è¿”å› null æˆ– undefined éƒ½æ˜¯åˆæ³•çš„å€¼ã€‚
             var item = values.reverse().find(function (item) {
                 return item != null; 
             });
@@ -178,10 +192,10 @@ define('Packer', function (require, module, exports) {
 
             var content = File.read(src);
 
-            //´¥·¢ÊÂ¼ş²¢³¢ÊÔÓÃÊÂ¼şµÄÓĞĞ§·µ»ØÖµ×÷ÎªĞÂµÄÄÚÈİ¡£
+            //è§¦å‘äº‹ä»¶å¹¶å°è¯•ç”¨äº‹ä»¶çš„æœ‰æ•ˆè¿”å›å€¼ä½œä¸ºæ–°çš„å†…å®¹ã€‚
             var values = emitter.fire('uglify', [src, content]);
 
-            // ·Ç null »ò undefined£¬¼´Ö»ÒªÊÂ¼şÖĞ²»·µ»Ø null »ò undefined ¶¼ÊÇºÏ·¨µÄÖµ¡£
+            // é null æˆ– undefinedï¼Œå³åªè¦äº‹ä»¶ä¸­ä¸è¿”å› null æˆ– undefined éƒ½æ˜¯åˆæ³•çš„å€¼ã€‚
             var item = values.reverse().find(function (item) {
                 return item != null; 
                 });
@@ -219,9 +233,10 @@ define('Packer', function (require, module, exports) {
         },
 
         /**
-        * ±àÒë less ²¢¶Ô css ÄÚÈİ½øĞĞºÏ²¢¡£
+        * ç¼–è¯‘ less å¹¶å¯¹ css å†…å®¹è¿›è¡Œåˆå¹¶ã€‚
         */
         less: function () {
+
             var meta = map.get(this);
             var options = meta.options.less;
 
@@ -230,9 +245,11 @@ define('Packer', function (require, module, exports) {
                 return '**/' + id + '.less';
             });
 
-            var files = Files.get(options.dir, modules);
+            //var files = Files.get(options.dir, modules);
+            var files = Files.get(options.dir, ['**/*.less']);
 
-            function compile(compress) {
+
+            function compile(compress, dest) {
                 Tasks.serial({
                     'data': files,
                     'each': function (file, index, done) {
@@ -241,13 +258,22 @@ define('Packer', function (require, module, exports) {
                     'all': function (values) {
                         var css = values.join('\r\n');
                         var file = options[compress ? 'min' : 'debug'];
-                        File.write(file, css);
+                        File.write(dest, css);
                     },
                 });
             }
 
-            compile(false);     //debug °æ¡£
-            compile(true);      //min °æ±¾¡£
+            var debug = options.debug;
+            var min = options.min;
+            if (debug) {
+                console.log('ç¼–è¯‘ less debug ç‰ˆ');
+                compile(false, debug);     //debug ç‰ˆã€‚
+            }
+           
+            if (min) {
+                console.log('ç¼–è¯‘ less min ç‰ˆ');
+                compile(true, min);      //min ç‰ˆæœ¬ã€‚
+            }
 
         },
 

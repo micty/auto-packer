@@ -1,6 +1,6 @@
 {
     "name": "auto-packer",
-    "version": "0.1.8",
+    "version": "0.2.1",
     "description": "auto pack js modules",
     "main": "index.js",
     "scripts": {
