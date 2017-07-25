@@ -206,8 +206,31 @@ define('Packer', function (require, module, exports) {
 
 
             var UglifyJS = require('UglifyJS');
-            var data = UglifyJS.minify(content, { fromString: true });
-            File.write(dest, data.code);
+            var code = '';
+
+
+            try{
+                //var result = UglifyJS.minify(content, { fromString: true });
+                var result = UglifyJS.minify(content);  //针对 es6。
+                code = result.code;
+
+                if (!code) {
+                    console.log('JS 压缩错误，压缩后的内容为空'.red);
+                    console.log(result);
+                    File.write('all.error.debug.js', content);
+                    throw new Error('JS 压缩错误，压缩后的内容为空');
+                }
+
+            }
+            catch (ex) {
+                console.log('JS 压缩错误'.red);
+                console.log(result);
+                File.write('all.error.debug.js', content);
+                throw ex;
+            }
+
+
+            File.write(dest, code);
         },
 
         html: function () {
